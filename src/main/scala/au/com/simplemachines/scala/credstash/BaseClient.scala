@@ -1,11 +1,20 @@
 package au.com.simplemachines.scala.credstash
 
+import au.com.simplemachines.scala.credstash.reader.CredValueReader
+
 object BaseClient {
 
   type EncryptionContext = java.util.Map[String, String]
   val EmptyEncryptionContext: EncryptionContext = new java.util.HashMap[String, String]()
 
-  val defaultCredentialTableName = "credential-store"
+  val DefaultCredentialTableName = "credential-store"
+  val DefaultCharacterEncoding = "UTF-8"
+}
+
+trait BaseClient {
+
+  def get[K](name: String, table: String = BaseClient.DefaultCredentialTableName, version: String = "-1")(implicit reader: CredValueReader[K]): Option[K]
+
 }
 
 trait AmazonClients {
@@ -16,8 +25,6 @@ trait AmazonClients {
   val dynamoClient: DynamoClient
 }
 
-trait BaseClient extends AmazonClients {
-
-  def get[K](name: String, table: String = BaseClient.defaultCredentialTableName, version: String = "-1")(implicit reader: CredValueReader[K]): Option[K]
-
+trait EncryptionClients {
+  val aesEncryption: AESEncryption
 }

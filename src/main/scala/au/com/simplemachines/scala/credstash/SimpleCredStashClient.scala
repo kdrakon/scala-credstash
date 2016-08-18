@@ -3,6 +3,7 @@ package au.com.simplemachines.scala.credstash
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
+import au.com.simplemachines.scala.credstash.reader.CredValueReader
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.model.{AttributeValue, ComparisonOperator, Condition, QueryRequest}
 import com.amazonaws.services.kms.AWSKMSClient
@@ -12,12 +13,12 @@ import com.amazonaws.util.Base64
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
-trait SimpleCredStashClient extends BaseClient {
+trait SimpleCredStashClient extends BaseClient with AmazonClients with EncryptionClients {
 
   override type KmsClient = AWSKMSClient
   override type DynamoClient = AmazonDynamoDBClient
 
-  override def get[K](name: String, table: String = BaseClient.defaultCredentialTableName, version: String = "-1")(implicit reader: CredValueReader[K]): Option[K] = {
+  override def get[K](name: String, table: String = BaseClient.DefaultCredentialTableName, version: String = "-1")(implicit reader: CredValueReader[K]): Option[K] = {
     val credStashItem = version match {
       case "-1" => getMostRecentValue(name, table)
       case _ => getVersionedValue(name, table, version)
@@ -61,6 +62,7 @@ trait SimpleCredStashClient extends BaseClient {
   private def decryptItem[K](credStashMaterial: CredStashMaterial)(implicit reader: CredValueReader[K]): Option[K] = {
 
     import EncryptionUtils._
+    import BaseClient._
 
     val checkKeyRequest = new DecryptRequest()
       .withCiphertextBlob(ByteBuffer.wrap(Base64.decode(credStashMaterial.key)))
@@ -79,7 +81,7 @@ trait SimpleCredStashClient extends BaseClient {
         val hmac = HmacSHA256(unencodedContents, hmacKey)
 
         if (hmac.toHexDigest == credStashMaterial.hmac) {
-          val decryptedString = new String(AESEncryption.decrypt(key, unencodedContents), Charset.forName("UTF8"))
+          val decryptedString = new String(aesEncryption.decrypt(key, unencodedContents), Charset.forName(DefaultCharacterEncoding))
           Some(reader.read(decryptedString))
         } else {
           None // TODO report issue

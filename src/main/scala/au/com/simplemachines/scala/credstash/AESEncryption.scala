@@ -3,10 +3,14 @@ package au.com.simplemachines.scala.credstash
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 
+trait AESEncryption {
+  def decrypt(key: Array[Byte], encryptedValue: Array[Byte]): Array[Byte]
+}
+
 /**
   * ref: https://gist.github.com/alexandru/ac1c01168710786b54b0
   */
-object AESEncryption {
+object DefaultAESEncryption extends AESEncryption {
 
   private def cipher(key: Array[Byte], encryptMode: Int) = {
     val cipher = Cipher.getInstance("AES/CTR/NoPadding")
