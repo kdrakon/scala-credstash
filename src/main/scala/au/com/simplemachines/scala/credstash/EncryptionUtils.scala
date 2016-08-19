@@ -16,8 +16,8 @@ object EncryptionUtils {
   }
 
   /**
-    * ref: http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-java
-    */
+   * ref: http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-java
+   */
   object HmacSHA256 {
     @throws[Exception]
     def apply(data: Array[Byte], key: Array[Byte]) = {

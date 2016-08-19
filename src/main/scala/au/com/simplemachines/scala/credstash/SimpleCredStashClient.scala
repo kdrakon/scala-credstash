@@ -5,20 +5,32 @@ import java.nio.charset.Charset
 
 import au.com.simplemachines.scala.credstash.reader.CredValueReader
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.amazonaws.services.dynamodbv2.model.{AttributeValue, ComparisonOperator, Condition, QueryRequest}
+import com.amazonaws.services.dynamodbv2.model.{ AttributeValue, ComparisonOperator, Condition, QueryRequest }
 import com.amazonaws.services.kms.AWSKMSClient
 import com.amazonaws.services.kms.model.DecryptRequest
 import com.amazonaws.util.Base64
 
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
+
+object SimpleCredStashClient {
+  def apply(kms: AWSKMSClient, dynamo: AmazonDynamoDBClient, aes: AESEncryption = DefaultAESEncryption) = {
+    new SimpleCredStashClient {
+      override val kmsClient = kms
+      override val dynamoClient = dynamo
+      override val aesEncryption = aes
+    }
+  }
+}
 
 trait SimpleCredStashClient extends BaseClient with AmazonClients with EncryptionClients {
+
+  import BaseClient._
 
   override type KmsClient = AWSKMSClient
   override type DynamoClient = AmazonDynamoDBClient
 
-  override def get[K](name: String, table: String = BaseClient.DefaultCredentialTableName, version: String = "-1")(implicit reader: CredValueReader[K]): Option[K] = {
+  override def get[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K] = {
     val credStashItem = version match {
       case "-1" => getMostRecentValue(name, table)
       case _ => getVersionedValue(name, table, version)

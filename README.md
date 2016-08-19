@@ -12,22 +12,20 @@ A Scala implementation of the [credstash](https://github.com/fugue/credstash) cl
 Still a work in progress, but you can play around with the `SimpleCredStashClient`, which provides read capabilities of your stashed data.
 
 ```
-  val client = new SimpleCredStashClient {
-    
-    val creds = new DefaultAWSCredentialsProviderChain()
-    
-    override val kmsClient: AWSKMSClient = new AWSKMSClient(creds) { self =>
-      setRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
-    }
-
-    override val dynamoClient: AmazonDynamoDBClient = new AmazonDynamoDBClient(creds) { self =>
-      setRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
-    }
-
-    override val aesEncryption = DefaultAESEncryption
+  val creds = new DefaultAWSCredentialsProviderChain()
+  
+  val kmsClient: AWSKMSClient = new AWSKMSClient(creds) { self =>
+    setRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
   }
+
+  val dynamoClient: AmazonDynamoDBClient = new AmazonDynamoDBClient(creds) { self =>
+    setRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
+  }
+
+  val client = SimpleCredStashClient(kmsClient, dynamoClient)
 ```
 You can then read a value like this using a `CredStashValueReader`:
 ```
-val value = client.get("seantest")(CredValueStringReader)
+import au.com.simplemachines.scala.credstash.reader.Readers._
+val value = client.get[String]("seantest")
 ```

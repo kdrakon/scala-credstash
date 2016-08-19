@@ -13,8 +13,9 @@ object BaseClient {
 
 trait BaseClient {
 
-  def get[K](name: String, table: String = BaseClient.DefaultCredentialTableName, version: String = "-1")(implicit reader: CredValueReader[K]): Option[K]
+  import BaseClient._
 
+  def get[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K]
 }
 
 trait AmazonClients {
