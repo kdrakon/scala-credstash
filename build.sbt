@@ -12,6 +12,8 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-kms" % "1.11.26"
 )
 
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
+
 SbtScalariform.scalariformSettings
 
 ScalariformKeys.preferences := ScalariformKeys.preferences.value

@@ -4,8 +4,8 @@ import au.com.simplemachines.scala.credstash.reader.CredValueReader
 
 object BaseClient {
 
-  type EncryptionContext = java.util.Map[String, String]
-  val EmptyEncryptionContext: EncryptionContext = new java.util.HashMap[String, String]()
+  type EncryptionContext = Map[String, String]
+  val EmptyEncryptionContext: EncryptionContext = Map()
 
   val DefaultCredentialTableName = "credential-store"
   val DefaultCharacterEncoding = "UTF-8"

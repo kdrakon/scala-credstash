@@ -35,7 +35,7 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
       case "-1" => getMostRecentValue(name, table)
       case _ => getVersionedValue(name, table, version)
     }
-    credStashItem.fold[Option[K]](None)(c => decryptItem(c))
+    credStashItem.fold[Option[K]](None)(material => decryptItem(material, context))
   }
 
   private def getMostRecentValue[K](name: String, table: String): Option[CredStashMaterial] = {
@@ -71,14 +71,14 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
     }
   }
 
-  private def decryptItem[K](credStashMaterial: CredStashMaterial)(implicit reader: CredValueReader[K]): Option[K] = {
+  private def decryptItem[K](credStashMaterial: CredStashMaterial, context: EncryptionContext)(implicit reader: CredValueReader[K]): Option[K] = {
 
     import EncryptionUtils._
     import BaseClient._
 
     val checkKeyRequest = new DecryptRequest()
       .withCiphertextBlob(ByteBuffer.wrap(Base64.decode(credStashMaterial.key)))
-      .withEncryptionContext(BaseClient.EmptyEncryptionContext) // TODO implement support for these contexts
+      .withEncryptionContext(context.asJava)
 
     Try(kmsClient.decrypt(checkKeyRequest)) match {
       case Failure(e) =>
