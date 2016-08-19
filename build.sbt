@@ -12,7 +12,12 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-kms" % "1.11.26"
 )
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
+libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+  "org.mockito" % "mockito-core" % "1.10.19" % "test"
+)
+
+coverageEnabled := true
 
 SbtScalariform.scalariformSettings
 
