@@ -65,7 +65,10 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
   private def getVersionedValue[K](name: String, table: String, version: String): Option[CredStashMaterial] = {
     Try(dynamoClient.getItem(table, Map("name" -> new AttributeValue(name), "version" -> new AttributeValue(version.toString)).asJava)) match {
       case Success(result) =>
-        Option(result.getItem).fold[Option[CredStashMaterial]](None)(item => Some(CredStashMaterial(item)))
+        Option(result.getItem).fold[Option[CredStashMaterial]](None)(item => item.isEmpty match {
+          case false => Some(CredStashMaterial(item))
+          case true => None
+        })
       case Failure(e) =>
         None // TODO report issue
     }

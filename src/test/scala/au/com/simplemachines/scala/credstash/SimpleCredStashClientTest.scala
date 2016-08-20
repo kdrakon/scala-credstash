@@ -1,6 +1,8 @@
 package au.com.simplemachines.scala.credstash
 
-import com.amazonaws.services.dynamodbv2.model.{ AttributeValue, GetItemResult, QueryResult }
+import java.util
+
+import com.amazonaws.services.dynamodbv2.model.{ AttributeValue, GetItemRequest, GetItemResult, QueryResult }
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
@@ -36,18 +38,21 @@ class SimpleCredStashClientTest extends SimpleCredStashClientTestHarness with Wo
     "return None when a version does not exist" in {
 
       val version = "123"
-      Mockito.when(
-        dynamoClient.getItem(
-          BaseClient.DefaultCredentialTableName,
-          Map("name" -> new AttributeValue("password"), "version" -> new AttributeValue(version.toString)).asJava
-        )
-      ).thenAnswer(
-          new Answer[GetItemResult]() {
-            override def answer(invocation: InvocationOnMock) = throw new RuntimeException("oops")
-          }
-        )
+      val getItemResult = new GetItemResult()
+      Mockito.when(dynamoClient.getItem(mockitoAny(), mockitoAny())).thenReturn(
+        getItemResult
+      )
 
+      getItemResult.setItem(null)
       newClient.get[String]("password", version = version) shouldBe None
+
+      getItemResult.setItem(Map[String, AttributeValue]().asJava)
+      newClient.get[String]("password", version = version) shouldBe None
+
+      Mockito.verify(dynamoClient, Mockito.times(2)).getItem(
+        BaseClient.DefaultCredentialTableName,
+        Map("name" -> new AttributeValue("password"), "version" -> new AttributeValue(version.toString)).asJava
+      )
     }
 
   }
