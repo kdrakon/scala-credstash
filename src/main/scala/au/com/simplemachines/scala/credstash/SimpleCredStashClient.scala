@@ -14,6 +14,7 @@ import scala.collection.JavaConverters._
 import scala.util.{ Failure, Success, Try }
 
 object SimpleCredStashClient {
+
   def apply(kms: AWSKMSClient, dynamo: AmazonDynamoDBClient, aes: AESEncryption = DefaultAESEncryption) = {
     new SimpleCredStashClient {
       override val kmsClient = kms
@@ -21,16 +22,29 @@ object SimpleCredStashClient {
       override val aesEncryption = aes
     }
   }
+
+  private[credstash] def constructNameQuery(name: String, table: String): QueryRequest = {
+    val keyCondition = new Condition()
+      .withComparisonOperator(ComparisonOperator.EQ)
+      .withAttributeValueList(List(new AttributeValue(name)).asJavaCollection)
+
+    new QueryRequest(table)
+      .withLimit(1)
+      .withScanIndexForward(false)
+      .withConsistentRead(true)
+      .addKeyConditionsEntry("name", keyCondition)
+  }
 }
 
 trait SimpleCredStashClient extends BaseClient with AmazonClients with EncryptionClients {
 
   import BaseClient._
+  import SimpleCredStashClient._
 
   override type KmsClient = AWSKMSClient
   override type DynamoClient = AmazonDynamoDBClient
 
-  override def get[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K] = {
+  override def as[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K] = {
     val credStashItem = version match {
       case "-1" => getMostRecentValue(name, table)
       case _ => getVersionedValue(name, table, version)
@@ -40,15 +54,7 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
 
   private def getMostRecentValue[K](name: String, table: String): Option[CredStashMaterial] = {
 
-    val keyCondition = new Condition()
-      .withComparisonOperator(ComparisonOperator.EQ)
-      .withAttributeValueList(List(new AttributeValue(name)).asJavaCollection)
-
-    val queryRequest = new QueryRequest(table)
-      .withLimit(1)
-      .withScanIndexForward(false)
-      .withConsistentRead(true)
-      .addKeyConditionsEntry("name", keyCondition)
+    val queryRequest = constructNameQuery(name, table)
 
     Try(dynamoClient.query(queryRequest)) match {
       case Success(result) =>
@@ -77,7 +83,6 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
   private def decryptItem[K](credStashMaterial: CredStashMaterial, context: EncryptionContext)(implicit reader: CredValueReader[K]): Option[K] = {
 
     import EncryptionUtils._
-    import BaseClient._
 
     val checkKeyRequest = new DecryptRequest()
       .withCiphertextBlob(ByteBuffer.wrap(Base64.decode(credStashMaterial.key)))

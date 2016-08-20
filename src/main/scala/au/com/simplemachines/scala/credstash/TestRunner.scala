@@ -20,6 +20,6 @@ object TestRunner extends App {
   val client = SimpleCredStashClient(kmsClient, dynamoClient)
 
   import au.com.simplemachines.scala.credstash.reader.Readers._
-  val value = client.get[String]("seantest")
+  val value = client.as[String]("seantest")
   println(value)
 }

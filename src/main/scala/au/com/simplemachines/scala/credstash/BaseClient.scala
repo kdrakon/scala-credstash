@@ -1,6 +1,6 @@
 package au.com.simplemachines.scala.credstash
 
-import au.com.simplemachines.scala.credstash.reader.CredValueReader
+import au.com.simplemachines.scala.credstash.reader.{ CredValueReader, Readers }
 
 object BaseClient {
 
@@ -15,7 +15,11 @@ trait BaseClient {
 
   import BaseClient._
 
-  def get[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K]
+  def as[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K]
+
+  def get(name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext) = {
+    as[String](name, table, version, context)(Readers.asString)
+  }
 }
 
 trait AmazonClients {
