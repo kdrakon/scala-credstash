@@ -22,10 +22,12 @@ Still a work in progress, but you can play around with the `SimpleCredStashClien
     setRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
   }
 
-  val client = SimpleCredStashClient(kmsClient, dynamoClient)
+  val credstash = SimpleCredStashClient(kmsClient, dynamoClient)
 ```
-You can then read a value like this using a `CredStashValueReader`:
+You can then read a String value or other type using a `CredStashValueReader`:
 ```
+val password = credstash.get("password")
+
 import au.com.simplemachines.scala.credstash.reader.Readers._
-val value = client.get[String]("seantest")
+val timeout = credstash.as[Int]("timeout")
 ```
