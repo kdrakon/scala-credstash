@@ -21,5 +21,6 @@ object TestRunner extends App {
 
   import au.com.simplemachines.scala.credstash.reader.Readers._
   val value = client.as[String]("seantest")
+  assert(client.get("seantest") == client.as[String]("seantest"))
   println(value)
 }

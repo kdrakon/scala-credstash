@@ -19,7 +19,7 @@ object DefaultAESEncryption extends AESEncryption {
     val blockSize = cipher.getBlockSize
     // ref: https://pythonhosted.org/pycrypto/Crypto.Util.Counter-module.html
     // Python default is Big Endian
-    val counter = Array.fill[Byte](blockSize - 1)(0) ++ Array[Byte](1)
+    val counter = Array[Byte](1).padTo(blockSize, 0.toByte).reverse
     val ivParameterSpec = new IvParameterSpec(counter)
 
     cipher.init(encryptMode, keyToSpec(key), ivParameterSpec)

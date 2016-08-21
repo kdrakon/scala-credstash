@@ -34,6 +34,9 @@ object SimpleCredStashClient {
       .withConsistentRead(true)
       .addKeyConditionsEntry("name", keyCondition)
   }
+
+  private[credstash] def versionRequestMap(name: String, version: String) =
+    Map("name" -> new AttributeValue(name), "version" -> new AttributeValue(version.toString)).asJava
 }
 
 trait SimpleCredStashClient extends BaseClient with AmazonClients with EncryptionClients {
@@ -69,7 +72,7 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
   }
 
   private def getVersionedValue[K](name: String, table: String, version: String): Option[CredStashMaterial] = {
-    Try(dynamoClient.getItem(table, Map("name" -> new AttributeValue(name), "version" -> new AttributeValue(version.toString)).asJava)) match {
+    Try(dynamoClient.getItem(table, versionRequestMap(name, version))) match {
       case Success(result) =>
         Option(result.getItem).fold[Option[CredStashMaterial]](None)(item => item.isEmpty match {
           case false => Some(CredStashMaterial(item))
@@ -84,24 +87,24 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
 
     import EncryptionUtils._
 
-    val checkKeyRequest = new DecryptRequest()
+    val decryptKeyRequest = new DecryptRequest()
       .withCiphertextBlob(ByteBuffer.wrap(Base64.decode(credStashMaterial.key)))
       .withEncryptionContext(context.asJava)
 
-    Try(kmsClient.decrypt(checkKeyRequest)) match {
+    Try(kmsClient.decrypt(decryptKeyRequest)) match {
       case Failure(e) =>
         None // TODO report issue
 
       case Success(result) =>
         val plainTextArray = result.getPlaintext.array()
-        val key = plainTextArray.take(32)
+        val aesKey = plainTextArray.take(32)
         val hmacKey = plainTextArray.takeRight(32)
 
         val unencodedContents = Base64.decode(credStashMaterial.contents)
         val hmac = HmacSHA256(unencodedContents, hmacKey)
 
         if (hmac.toHexDigest == credStashMaterial.hmac) {
-          val decryptedString = new String(aesEncryption.decrypt(key, unencodedContents), Charset.forName(DefaultCharacterEncoding))
+          val decryptedString = new String(aesEncryption.decrypt(aesKey, unencodedContents), Charset.forName(DefaultCharacterEncoding))
           Some(reader.read(decryptedString))
         } else {
           None // TODO report issue
