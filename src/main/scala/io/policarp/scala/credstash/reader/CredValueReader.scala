@@ -1,4 +1,4 @@
-package au.com.simplemachines.scala.credstash.reader
+package io.policarp.scala.credstash.reader
 
 trait CredValueReader[K] {
   def read(value: String): K

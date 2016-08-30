@@ -1,14 +1,14 @@
-package au.com.simplemachines.scala.credstash
+package io.policarp.scala.credstash
 
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
-import au.com.simplemachines.scala.credstash.reader.CredValueReader
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.model.{ AttributeValue, ComparisonOperator, Condition, QueryRequest }
 import com.amazonaws.services.kms.AWSKMSClient
 import com.amazonaws.services.kms.model.DecryptRequest
 import com.amazonaws.util.Base64
+import io.policarp.scala.credstash.reader.CredValueReader
 
 import scala.collection.JavaConverters._
 import scala.util.{ Failure, Success, Try }
