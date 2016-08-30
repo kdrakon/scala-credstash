@@ -1,6 +1,6 @@
 # scala-credstash
 
-[![Build Status](https://travis-ci.org/simple-machines/scala-credstash.svg?branch=master)](https://travis-ci.org/simple-machines/scala-credstash)
+[![Build Status](https://travis-ci.org/kdrakon/scala-credstash.svg?branch=master)](https://travis-ci.org/kdrakon/scala-credstash)
 
 A Scala implementation of the [credstash](https://github.com/fugue/credstash) client. Now you can read your KMS encrypted data directly from DynamoDB into your Scala code. This client is meant to be lightweight and not a replacement to the Python client.
 
