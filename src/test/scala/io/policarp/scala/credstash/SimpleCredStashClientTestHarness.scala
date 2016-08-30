@@ -1,4 +1,4 @@
-package au.com.simplemachines.scala.credstash
+package io.policarp.scala.credstash
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.kms.AWSKMSClient

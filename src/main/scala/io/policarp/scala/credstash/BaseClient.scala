@@ -1,6 +1,6 @@
-package au.com.simplemachines.scala.credstash
+package io.policarp.scala.credstash
 
-import au.com.simplemachines.scala.credstash.reader.{ CredValueReader, Readers }
+import io.policarp.scala.credstash.reader.{ CredValueReader, Readers }
 
 object BaseClient {
 

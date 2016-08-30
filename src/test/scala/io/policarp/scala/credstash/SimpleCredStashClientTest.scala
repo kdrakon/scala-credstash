@@ -1,8 +1,8 @@
-package au.com.simplemachines.scala.credstash
+package io.policarp.scala.credstash
 
 import java.nio.ByteBuffer
 
-import au.com.simplemachines.scala.credstash.TestUtils._
+import TestUtils._
 import com.amazonaws.services.dynamodbv2.model.{ AttributeValue, GetItemResult, QueryResult }
 import com.amazonaws.services.kms.model.{ DecryptRequest, DecryptResult }
 import com.amazonaws.util.Base64

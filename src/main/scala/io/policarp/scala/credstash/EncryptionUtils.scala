@@ -1,4 +1,4 @@
-package au.com.simplemachines.scala.credstash
+package io.policarp.scala.credstash
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec

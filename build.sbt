@@ -3,9 +3,9 @@ import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 
 name := "scala-credstash"
-version := "0.1"
+version := "1.0"
 scalaVersion := "2.11.8"
-organization := "au.com.simplemachines"
+organization := "io.policarp"
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-dynamodb" % "1.11.26",
