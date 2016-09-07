@@ -15,9 +15,11 @@ Create a `SimpleCredStashClient` using AWS' KMS and DynamoDB clients:
 ```scala
   val creds = new DefaultAWSCredentialsProviderChain()
   
-  val kmsClient: AWSKMSClient = new AWSKMSClient(creds).withRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
+  val kmsClient: AWSKMSClient = 
+    new AWSKMSClient(creds).withRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
 
-  val dynamoClient: AmazonDynamoDBClient = new AmazonDynamoDBClient(creds).withRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
+  val dynamoClient: AmazonDynamoDBClient = 
+    new AmazonDynamoDBClient(creds).withRegion(Region.getRegion(Regions.AP_SOUTHEAST_2))
 
   val credstash = SimpleCredStashClient(kmsClient, dynamoClient)
 ```
