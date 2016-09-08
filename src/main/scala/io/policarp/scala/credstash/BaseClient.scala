@@ -15,9 +15,9 @@ trait BaseClient {
 
   import BaseClient._
 
-  def as[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K]
+  def as[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: Map[String, String] = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K]
 
-  def get(name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: EncryptionContext = EmptyEncryptionContext) = {
+  def get(name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: Map[String, String] = EmptyEncryptionContext) = {
     as[String](name, table, version, context)(Readers.asString)
   }
 }
