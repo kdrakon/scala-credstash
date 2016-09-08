@@ -47,10 +47,10 @@ trait SimpleCredStashClient extends BaseClient with AmazonClients with Encryptio
   override type KmsClient = AWSKMSClient
   override type DynamoClient = AmazonDynamoDBClient
 
-  override def as[K](name: String, table: String = DefaultCredentialTableName, version: String = "-1", context: Map[String, String] = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K] = {
+  override def as[K](name: String, table: String = DefaultCredentialTableName, version: String = MostRecentVersion, context: Map[String, String] = EmptyEncryptionContext)(implicit reader: CredValueReader[K]): Option[K] = {
     val credStashItem = version match {
-      case "-1" => getMostRecentValue(name, table)
-      case _ => getVersionedValue(name, table, version)
+      case MostRecentVersion => getMostRecentValue(name, table)
+      case someVersion => getVersionedValue(name, table, someVersion)
     }
     credStashItem.fold[Option[K]](None)(material => decryptItem(material, context))
   }
