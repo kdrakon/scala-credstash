@@ -3,7 +3,7 @@ import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 
 name := "scala-credstash"
-version := "1.0"
+version := "1.01"
 scalaVersion := "2.11.8"
 organization := "io.policarp"
 
